@@ -9,6 +9,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
 from . import models, schemas
+from .prioritizer import calculate_finding_risk
 from .security import redact_secret_string
 
 
@@ -87,6 +88,20 @@ def create_scan_from_report(
                 # Redact any accidental secret text in description
                 pass
 
+            r_score = f.risk_score
+            r_priority = f.priority
+            r_factors = f.risk_factors
+            if r_score is None:
+                r_score, r_priority, r_factors = calculate_finding_risk({
+                    "id": f.id,
+                    "severity": f.severity,
+                    "title": f.title,
+                    "description": f.description,
+                    "file": f.file,
+                    "package": f.package,
+                    "fixed_version": f.fixed_version,
+                })
+
             new_finding = models.Finding(
                 scan_id=new_scan.id,
                 finding_id=f.id,
@@ -102,6 +117,9 @@ def create_scan_from_report(
                 fixed_version=f.fixed_version,
                 remediation=f.remediation,
                 references=f.references or [],
+                risk_score=r_score,
+                priority=r_priority,
+                risk_factors=r_factors,
             )
             db.add(new_finding)
 
@@ -165,14 +183,17 @@ def get_findings(
     severity: Optional[str] = None,
     scanner: Optional[str] = None,
     search: Optional[str] = None,
+    priority: Optional[str] = None,
 ) -> Tuple[List[models.Finding], int]:
-    """Retrieves paginated findings with multi-field filtering and search."""
+    """Retrieves paginated findings with multi-field filtering, priority tiers, and risk score sorting."""
     query = db.query(models.Finding)
 
     if scan_id is not None and isinstance(scan_id, int):
         query = query.filter(models.Finding.scan_id == scan_id)
     if severity and isinstance(severity, str):
         query = query.filter(models.Finding.severity == severity.upper().strip())
+    if priority and isinstance(priority, str):
+        query = query.filter(models.Finding.priority == priority.upper().strip())
     if scanner and isinstance(scanner, str):
         query = query.filter(models.Finding.scanner == scanner.lower().strip())
     if search and isinstance(search, str):
@@ -187,7 +208,7 @@ def get_findings(
         )
 
     total = query.count()
-    findings = query.order_by(models.Finding.id.asc()).offset(skip).limit(limit).all()
+    findings = query.order_by(models.Finding.risk_score.desc(), models.Finding.id.asc()).offset(skip).limit(limit).all()
     return findings, total
 
 

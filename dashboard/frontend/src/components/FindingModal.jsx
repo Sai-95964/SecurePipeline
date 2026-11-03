@@ -20,9 +20,12 @@ export default function FindingModal({ finding, onClose }) {
         {/* Header */}
         <div className="p-5 border-b border-slate-800 flex items-start justify-between gap-4 sticky top-0 bg-[#0f172a] z-10">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${badgeClass}`}>
                 {finding.severity}
+              </span>
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                Priority {finding.priority || 'P2'} • Risk {finding.risk_score || 50}/100
               </span>
               <span className="text-xs text-slate-400 font-mono capitalize">
                 Scanner: {finding.scanner.replace('_', ' ')}
@@ -46,6 +49,33 @@ export default function FindingModal({ finding, onClose }) {
             <p className="text-slate-200 leading-relaxed bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
               {finding.description}
             </p>
+          </div>
+
+          {/* Contextual Risk Analysis */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Shield className="w-4 h-4 text-sky-400" />
+                Contextual Risk &amp; Reachability Analysis
+              </span>
+              <span className="text-xs font-mono font-bold text-sky-300 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-800">
+                Score: {finding.risk_score || 50} / 100
+              </span>
+            </div>
+            {finding.risk_factors && finding.risk_factors.length > 0 ? (
+              <ul className="space-y-1 text-xs text-slate-300">
+                {finding.risk_factors.map((factor, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                    <span>{factor}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-slate-400 italic">
+                Evaluated based on component reachability, public ingress exposure, and threat impact.
+              </p>
+            )}
           </div>
 
           {/* Location & Package Details */}

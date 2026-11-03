@@ -53,6 +53,21 @@ export default function FindingsTable({
             </select>
           </div>
 
+          {/* Priority filter */}
+          <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-300">
+            <select
+              value={filters.priority || ''}
+              onChange={(e) => onFilterChange('priority', e.target.value)}
+              className="bg-transparent text-xs text-white focus:outline-none cursor-pointer"
+            >
+              <option value="" className="bg-slate-900">All Priorities</option>
+              <option value="P0" className="bg-slate-900 text-rose-400">P0 - Blocker</option>
+              <option value="P1" className="bg-slate-900 text-orange-400">P1 - High Priority</option>
+              <option value="P2" className="bg-slate-900 text-amber-400">P2 - Medium Priority</option>
+              <option value="P3" className="bg-slate-900 text-sky-400">P3 - Low Priority</option>
+            </select>
+          </div>
+
           {/* Scanner filter */}
           <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-300">
             <select
@@ -75,6 +90,7 @@ export default function FindingsTable({
         <table className="w-full text-left text-xs">
           <thead className="bg-[#0a0f1d] text-slate-400 uppercase font-semibold border-b border-slate-800 tracking-wider">
             <tr>
+              <th className="py-3 px-4">Priority / Risk</th>
               <th className="py-3 px-4">Severity</th>
               <th className="py-3 px-4">Finding ID</th>
               <th className="py-3 px-4">Scanner</th>
@@ -86,7 +102,7 @@ export default function FindingsTable({
           <tbody className="divide-y divide-slate-800/80">
             {findings.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-slate-500 italic">
+                <td colSpan={7} className="py-12 text-center text-slate-500 italic">
                   No vulnerability findings match the current filter criteria.
                 </td>
               </tr>
@@ -95,9 +111,22 @@ export default function FindingsTable({
                 const sev = (f.severity || 'MEDIUM').toUpperCase();
                 const badgeClass = severityBadges[sev] || severityBadges.MEDIUM;
                 const location = f.file ? `${f.file}${f.line ? `:${f.line}` : ''}` : f.package || 'codebase';
+                const prio = f.priority || 'P2';
+                const prioBadges = {
+                  P0: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+                  P1: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+                  P2: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+                  P3: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+                };
 
                 return (
                   <tr key={f.id} className="hover:bg-slate-800/40 transition">
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${prioBadges[prio] || prioBadges.P2}`}>
+                        {prio === 'P0' ? '🔥 P0' : prio}
+                        <span className="opacity-75">({f.risk_score || 50}/100)</span>
+                      </span>
+                    </td>
                     <td className="py-3 px-4">
                       <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold border ${badgeClass}`}>
                         {sev}

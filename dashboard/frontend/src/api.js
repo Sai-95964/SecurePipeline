@@ -49,13 +49,19 @@ export const fetchScanDetail = async (scanId) => {
   return res.data;
 };
 
-export const fetchFindings = async ({ skip = 0, limit = 50, scanId = null, severity = null, scanner = null, search = null }) => {
+export const fetchFindings = async ({ skip = 0, limit = 50, scanId = null, severity = null, scanner = null, search = null, priority = null }) => {
   let url = `/findings?skip=${skip}&limit=${limit}`;
   if (scanId) url += `&scan_id=${scanId}`;
   if (severity) url += `&severity=${severity}`;
   if (scanner) url += `&scanner=${scanner}`;
+  if (priority) url += `&priority=${priority}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
   const res = await api.get(url);
+  return res.data;
+};
+
+export const fetchScanRegression = async (scanId) => {
+  const res = await api.get(`/scans/${scanId}/regression`);
   return res.data;
 };
 

@@ -27,6 +27,9 @@ class FindingIngest(BaseModel):
     remediation: Optional[str] = None
     references: Optional[List[str]] = Field(default_factory=list)
     fingerprint: Optional[str] = None
+    risk_score: Optional[int] = None
+    priority: Optional[str] = None
+    risk_factors: Optional[List[str]] = Field(default_factory=list)
 
 
 class ScannerStatusItem(BaseModel):
@@ -91,6 +94,9 @@ class FindingOut(BaseModel):
     fixed_version: Optional[str] = None
     remediation: Optional[str] = None
     references: Optional[List[str]] = None
+    risk_score: Optional[int] = 50
+    priority: Optional[str] = "P2"
+    risk_factors: Optional[List[str]] = None
 
 
 class FindingListResponse(BaseModel):

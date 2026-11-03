@@ -77,11 +77,17 @@ class Finding(Base):
     remediation = Column(Text, nullable=True)
     references = Column(JSON, nullable=True)
 
+    # Intelligent Risk Prioritization
+    risk_score = Column(Integer, default=50, index=True)
+    priority = Column(String(16), default="P2", index=True)  # P0, P1, P2, P3
+    risk_factors = Column(JSON, nullable=True)
+
     # Relationships
     scan = relationship("Scan", back_populates="findings")
 
     __table_args__ = (
         Index("idx_findings_scan_severity", "scan_id", "severity"),
+        Index("idx_findings_priority", "priority"),
     )
 
 

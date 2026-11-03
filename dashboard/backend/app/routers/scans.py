@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import crud, schemas
 from ..security import verify_api_key
+from ..regression import calculate_scan_regression
 
 router = APIRouter(prefix="/scans", tags=["Scans"])
 
@@ -46,6 +47,15 @@ def get_scan(
             detail=f"Scan with ID {scan_id} not found.",
         )
     return scan
+
+
+@router.get("/{scan_id}/regression")
+def get_scan_regression(
+    scan_id: int,
+    db: Session = Depends(get_db),
+):
+    """Computes security regression analysis comparing this scan with the previous one."""
+    return calculate_scan_regression(db, current_scan_id=scan_id)
 
 
 @router.post("/ingest", response_model=schemas.ScanDetailOut, status_code=status.HTTP_201_CREATED)

@@ -21,9 +21,10 @@ def list_findings(
     severity: Optional[str] = None,
     scanner: Optional[str] = None,
     search: Optional[str] = None,
+    priority: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
-    """Retrieves paginated findings with multi-criteria filtering."""
+    """Retrieves paginated findings with multi-criteria filtering, priority tiers, and risk score sorting."""
     findings, total = crud.get_findings(
         db,
         skip=skip,
@@ -32,6 +33,7 @@ def list_findings(
         severity=severity,
         scanner=scanner,
         search=search,
+        priority=priority,
     )
     return schemas.FindingListResponse(
         total=total,

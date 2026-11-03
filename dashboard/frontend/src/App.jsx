@@ -41,6 +41,7 @@ export default function App() {
     search: '',
     severity: '',
     scanner: '',
+    priority: '',
     scanId: null,
   });
 
@@ -89,6 +90,7 @@ export default function App() {
         severity: filters.severity || null,
         scanner: filters.scanner || null,
         search: filters.search || null,
+        priority: filters.priority || null,
       });
       setFindings(data.findings || []);
       setFindingsTotal(data.total || 0);

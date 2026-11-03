@@ -46,6 +46,7 @@ export default function ScanHistory({ scans, onSelectScan }) {
               <th className="py-3 px-4">Execution Timestamp</th>
               <th className="py-3 px-4">Gate Decision</th>
               <th className="py-3 px-4">Security Score</th>
+              <th className="py-3 px-4">Regression / Trend</th>
               <th className="py-3 px-4">Severity Breakdown (C / H / M / L)</th>
               <th className="py-3 px-4 text-right">Action</th>
             </tr>
@@ -53,34 +54,62 @@ export default function ScanHistory({ scans, onSelectScan }) {
           <tbody className="divide-y divide-slate-800/80">
             {scans.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-slate-500 italic">
+                <td colSpan={8} className="py-12 text-center text-slate-500 italic">
                   No pipeline security scans have been recorded in the database yet.
                 </td>
               </tr>
             ) : (
-              scans.map((s) => (
-                <tr key={s.id} className="hover:bg-slate-800/40 transition">
-                  <td className="py-3 px-4 font-mono font-bold text-slate-300">
-                    #{s.id}
-                  </td>
-                  <td className="py-3 px-4 font-mono text-slate-400">
-                    {s.report_id}
-                  </td>
-                  <td className="py-3 px-4 text-slate-300">
-                    {new Date(s.scan_timestamp).toLocaleString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    {getBadge(s.gate_decision)}
-                  </td>
-                  <td className="py-3 px-4 font-mono font-bold">
-                    {s.security_score !== null ? (
-                      <span className={s.security_score >= 80 ? 'text-emerald-400' : s.security_score >= 50 ? 'text-amber-400' : 'text-rose-400'}>
-                        {s.security_score} / 100
-                      </span>
-                    ) : (
-                      <span className="text-slate-500">N/A</span>
-                    )}
-                  </td>
+              scans.map((s, idx) => {
+                const prev = scans[idx + 1];
+                let delta = null;
+                let trend = null;
+                if (prev && s.security_score !== null && prev.security_score !== null) {
+                  delta = s.security_score - prev.security_score;
+                  trend = delta > 0 ? 'IMPROVED' : delta < 0 ? 'REGRESSED' : 'STABLE';
+                }
+
+                return (
+                  <tr key={s.id} className="hover:bg-slate-800/40 transition">
+                    <td className="py-3 px-4 font-mono font-bold text-slate-300">
+                      #{s.id}
+                    </td>
+                    <td className="py-3 px-4 font-mono text-slate-400">
+                      {s.report_id}
+                    </td>
+                    <td className="py-3 px-4 text-slate-300">
+                      {new Date(s.scan_timestamp).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4">
+                      {getBadge(s.gate_decision)}
+                    </td>
+                    <td className="py-3 px-4 font-mono font-bold">
+                      {s.security_score !== null ? (
+                        <span className={s.security_score >= 80 ? 'text-emerald-400' : s.security_score >= 50 ? 'text-amber-400' : 'text-rose-400'}>
+                          {s.security_score} / 100
+                        </span>
+                      ) : (
+                        <span className="text-slate-500">N/A</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {trend === 'IMPROVED' ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950/50 border border-emerald-800/60 px-2 py-0.5 rounded">
+                          ▲ +{delta} (Improved)
+                        </span>
+                      ) : trend === 'REGRESSED' ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-rose-400 bg-rose-950/50 border border-rose-800/60 px-2 py-0.5 rounded">
+                          ▼ {delta} (Regressed)
+                        </span>
+                      ) : trend === 'STABLE' ? (
+                        <span className="text-[11px] font-mono text-slate-400">
+                          — No change
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-mono text-slate-500">
+                          Baseline
+                        </span>
+                      )}
+                    </td>
                   <td className="py-3 px-4 font-mono text-xs">
                     <span className="text-rose-400 font-bold">{s.critical_count}</span>
                     <span className="text-slate-600 mx-1">/</span>
@@ -100,8 +129,9 @@ export default function ScanHistory({ scans, onSelectScan }) {
                     </button>
                   </td>
                 </tr>
-              ))
-            )}
+              );
+            })
+          )}
           </tbody>
         </table>
       </div>
