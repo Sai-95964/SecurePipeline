@@ -1,7 +1,15 @@
 # Sample Dockerfile for testing container image vulnerability scanning
-FROM python:3.9-slim
+# Uses python:3.12-slim for a more current base image with fewer OS-level CVEs.
+# Intentionally vulnerable Python dependencies are preserved in requirements.txt
+# so that Trivy dependency scanning still demonstrates vulnerability detection.
+FROM python:3.12-slim
 
 WORKDIR /app
+
+# Patch OS-level packages to fix CRITICAL CVEs (OpenSSL, perl-base)
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy dependency definition and install
 COPY requirements.txt .
