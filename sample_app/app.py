@@ -37,5 +37,12 @@ def evaluate_expression():
     return jsonify({"result": val})
 
 
+@app.route("/ping")
+def ping_service():
+    """CI/CD validation test endpoint for live pipeline trigger."""
+    target = request.args.get("host", "127.0.0.1")
+    return jsonify({"service": "securepipeline-test", "target": target})
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
