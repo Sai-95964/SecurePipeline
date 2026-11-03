@@ -208,7 +208,52 @@ jobs:
             --output-dir reports/
 
       # =========================================================================
-      # STAGE 8: ARTIFACT UPLOAD
+      # STAGE 8: AUTOMATED REPORT INGESTION TO FASTAPI BACKEND
+      # =========================================================================
+
+      - name: Send Security Report to FastAPI Backend
+        if: always()
+        env:
+          FASTAPI_URL: ${{ secrets.FASTAPI_URL }}
+          FASTAPI_TOKEN: ${{ secrets.FASTAPI_TOKEN }}
+        run: |
+          if [ -z "$FASTAPI_URL" ]; then
+            echo "::notice::FASTAPI_URL secret not configured. Skipping automated backend ingestion."
+            exit 0
+          fi
+
+          if [ ! -f "reports/security_report.json" ]; then
+            echo "::warning::reports/security_report.json not found. Ingestion skipped."
+            exit 0
+          fi
+
+          echo "Delivering security report to FastAPI at $FASTAPI_URL/scans/ingest..."
+
+          AUTH_HEADER=""
+          if [ -n "$FASTAPI_TOKEN" ]; then
+            AUTH_HEADER="-H X-API-Key: $FASTAPI_TOKEN"
+          fi
+
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Content-Type: application/json" \
+            $AUTH_HEADER \
+            --data @reports/security_report.json \
+            "${FASTAPI_URL%/}/scans/ingest" || true)
+
+          HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -n1)
+          RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+          echo "HTTP Status Code: $HTTP_CODE"
+          if [ "$HTTP_CODE" -eq 201 ]; then
+            echo "::notice::Security report successfully ingested into FastAPI backend!"
+          elif [ "$HTTP_CODE" -eq 409 ]; then
+            echo "::notice::Report already ingested in backend database (HTTP 409 Conflict)."
+          else
+            echo "::warning::Failed to deliver report to backend: HTTP $HTTP_CODE - $RESPONSE_BODY"
+          fi
+
+      # =========================================================================
+      # STAGE 9: ARTIFACT UPLOAD
       # =========================================================================
 
       - name: Upload Security Reports & Artifacts

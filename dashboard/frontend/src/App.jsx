@@ -48,9 +48,9 @@ export default function App() {
   const [selectedFinding, setSelectedFinding] = useState(null);
 
   // Load all overview metrics
-  const loadDashboardData = useCallback(async () => {
+  const loadDashboardData = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
 
       // Verify health check
@@ -74,7 +74,7 @@ export default function App() {
       setBackendConnected(false);
       setError('Cannot connect to FastAPI backend at http://127.0.0.1:8000. Ensure uvicorn is running.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -101,6 +101,16 @@ export default function App() {
   useEffect(() => {
     loadDashboardData();
   }, [loadDashboardData]);
+
+  // Automatic periodic refresh every 10 seconds (silent background poll)
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      loadDashboardData(true);
+      loadFindingsData();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [loadDashboardData, loadFindingsData]);
 
   // When filters or page changes, re-fetch findings
   useEffect(() => {
