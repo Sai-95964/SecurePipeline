@@ -58,20 +58,11 @@ jobs:
 
       - name: Install Trivy Scanner
         run: |
-          TRIVY_VERSION="0.51.1"
+          TRIVY_VERSION="0.51.4"
           curl -fL --retry 3 --retry-delay 2 \
-            -o /tmp/trivy.tar.gz \
-            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
-          tar -xzf /tmp/trivy.tar.gz -C /tmp trivy
-          sudo install -m 755 /tmp/trivy /usr/local/bin/trivy
-          trivy --version
-      - name: Verify Security Tool Installations
-        run: |
-          echo "=== Installed Tool Versions ==="
-          python --version
-          semgrep --version
-          gitleaks version
-          syft version
+            -o /tmp/trivy.deb \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.deb"
+          sudo dpkg -i /tmp/trivy.deb
           trivy --version
           docker --version
 
