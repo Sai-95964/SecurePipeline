@@ -56,6 +56,13 @@ jobs:
         run: |
           python -m pip install semgrep==1.95.0
 
+          # Restore pkg_resources compatibility
+          python -m pip install --force-reinstall "setuptools==80.9.0"
+
+          # Verify Semgrep and pkg_resources
+          python -c "import pkg_resources; print('pkg_resources available')"
+          semgrep --version
+
       - name: Install Gitleaks
         run: |
           GITLEAKS_VERSION="8.18.4"
