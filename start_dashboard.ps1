@@ -15,11 +15,11 @@ Start-Sleep -Seconds 1
 
 # 2. Start Backend in a new window
 Write-Host "[2/3] Starting FastAPI Backend on http://127.0.0.1:8000..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'C:\Users\venna\.gemini\antigravity\scratch\securepipeline\dashboard\backend'; Write-Host 'FastAPI Backend Running on http://127.0.0.1:8000' -ForegroundColor Green; python -m uvicorn app.main:app --reload --port 8000"
+Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", "cd 'C:\Users\venna\.gemini\antigravity\scratch\securepipeline\dashboard\backend'; Write-Host 'FastAPI Backend Running on http://127.0.0.1:8000' -ForegroundColor Green; python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000"
 
-# 3. Start Frontend in a new window
+# 3. Start Frontend in a new window (using cmd /c npm.cmd to bypass PowerShell execution policy)
 Write-Host "[3/3] Starting React Frontend on http://localhost:5173..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'C:\Users\venna\.gemini\antigravity\scratch\securepipeline\dashboard\frontend'; Write-Host 'React Frontend Running on http://localhost:5173' -ForegroundColor Cyan; npm run dev"
+Start-Process cmd.exe -ArgumentList "/k", "cd /d C:\Users\venna\.gemini\antigravity\scratch\securepipeline\dashboard\frontend && echo React Frontend Running on http://localhost:5173 && npm.cmd run dev -- --host 127.0.0.1"
 
 Start-Sleep -Seconds 3
 
