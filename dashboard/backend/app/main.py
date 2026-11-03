@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .database import init_db
-from .routers import scans, findings, dashboard
+from .routers import scans, findings, dashboard, analyzer
 from .schemas import HealthResponse
 
 
@@ -43,6 +43,7 @@ app.add_middleware(
 app.include_router(scans.router, prefix=settings.API_PREFIX)
 app.include_router(findings.router, prefix=settings.API_PREFIX)
 app.include_router(dashboard.router, prefix=settings.API_PREFIX)
+app.include_router(analyzer.router, prefix=settings.API_PREFIX)
 
 
 @app.get(f"{settings.API_PREFIX}/health", response_model=HealthResponse, tags=["Health"])

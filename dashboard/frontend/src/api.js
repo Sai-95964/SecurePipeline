@@ -64,4 +64,14 @@ export const fetchFindingDetail = async (findingId) => {
   return res.data;
 };
 
+export const analyzeCode = async (code, language = 'python', filename = 'submitted_code.py') => {
+  const res = await api.post('/analyzer/analyze', { code, language, filename });
+  return res.data;
+};
+
+export const fetchAnalyzerPatterns = async () => {
+  const res = await api.get('/analyzer/patterns');
+  return res.data;
+};
+
 export default api;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Bug, Activity, History } from 'lucide-react';
+import { LayoutDashboard, Bug, Activity, History, Code2 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onSelectTab, counts }) {
   const tabs = [
@@ -7,6 +7,7 @@ export default function Sidebar({ activeTab, onSelectTab, counts }) {
     { id: 'vulnerabilities', label: 'Vulnerabilities', icon: Bug, count: counts?.totalFindings },
     { id: 'scanners', label: 'Scanner Status', icon: Activity },
     { id: 'history', label: 'Scan History', icon: History, count: counts?.totalScans },
+    { id: 'analyzer', label: 'Code Analyzer', icon: Code2 },
   ];
 
   return (

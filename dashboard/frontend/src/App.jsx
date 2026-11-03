@@ -7,6 +7,7 @@ import ScannerStatus from './components/ScannerStatus';
 import FindingsTable from './components/FindingsTable';
 import FindingModal from './components/FindingModal';
 import ScanHistory from './components/ScanHistory';
+import CodeAnalyzer from './components/CodeAnalyzer';
 import {
   fetchHealth,
   fetchDashboardSummary,
@@ -256,6 +257,17 @@ export default function App() {
                 scans={scans}
                 onSelectScan={handleSelectScanForFilter}
               />
+            </div>
+          )}
+
+          {/* Tab 5: Code Analyzer */}
+          {activeTab === 'analyzer' && (
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">Code Analyzer & AI Recommendations</h2>
+                <p className="text-xs text-slate-400">Submit code for security analysis, vulnerability detection, and improvement suggestions</p>
+              </div>
+              <CodeAnalyzer />
             </div>
           )}
         </main>
