@@ -2,9 +2,9 @@ name: SecurePipeline CI/CD
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
@@ -37,7 +37,7 @@ jobs:
           python -m pip install --upgrade pip
 
           if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
+            python -m pip install -r requirements.txt
           fi
 
           mkdir -p reports/raw reports
@@ -46,33 +46,46 @@ jobs:
       # STAGE 2: SECURITY TOOL INSTALLATION & VERIFICATION
       # =========================================================================
 
+      # Fix compatibility with older Semgrep dependencies
+      - name: Install Setuptools Compatibility
+        run: |
+          python -m pip install "setuptools<81"
+          python -c "import pkg_resources; print('pkg_resources available')"
+
       - name: Install Semgrep SAST
         run: |
-          pip install semgrep==1.95.0
+          python -m pip install semgrep==1.95.0
 
       - name: Install Gitleaks
         run: |
           GITLEAKS_VERSION="8.18.4"
 
-          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | sudo tar -xz -C /usr/local/bin gitleaks
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin gitleaks
 
           sudo chmod +x /usr/local/bin/gitleaks
 
       - name: Install Syft SBOM Generator
         run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin v1.1.0
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
+            | sudo sh -s -- -b /usr/local/bin v1.1.0
 
           sudo chmod +x /usr/local/bin/syft
 
       # Install Trivy using its official Debian repository
       - name: Install Trivy Scanner
         run: |
+          set -euo pipefail
+
           sudo apt-get update
           sudo apt-get install -y wget gnupg
 
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key \
+            | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
 
-          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" \
+            | sudo tee /etc/apt/sources.list.d/trivy.list
 
           sudo apt-get update
           sudo apt-get install -y trivy
@@ -83,6 +96,8 @@ jobs:
       - name: Verify Security Tool Installations
         run: |
           echo "=== Installed Tool Versions ==="
+
+          python -c "import pkg_resources; print('pkg_resources OK')"
 
           python --version
           semgrep --version
