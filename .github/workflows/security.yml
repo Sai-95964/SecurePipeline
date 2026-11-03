@@ -58,9 +58,13 @@ jobs:
 
       - name: Install Trivy Scanner
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.51.1
-          sudo chmod +x /usr/local/bin/trivy
-
+          TRIVY_VERSION="0.51.1"
+          curl -fL --retry 3 --retry-delay 2 \
+            -o /tmp/trivy.tar.gz \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          tar -xzf /tmp/trivy.tar.gz -C /tmp trivy
+          sudo install -m 755 /tmp/trivy /usr/local/bin/trivy
+          trivy --version
       - name: Verify Security Tool Installations
         run: |
           echo "=== Installed Tool Versions ==="
