@@ -77,14 +77,54 @@ export default function FindingModal({ finding, onClose }) {
           </div>
 
           {/* Remediation Guidance */}
-          <div className="bg-sky-950/30 border border-sky-500/30 rounded-xl p-4">
-            <div className="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-wider mb-2">
+          <div className="bg-sky-950/30 border border-sky-500/30 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-wider">
               <Wrench className="w-4 h-4" />
-              Recommended Remediation
+              AI Remediation &amp; Solution
             </div>
             <p className="text-xs text-sky-200 leading-relaxed">
-              {finding.remediation || 'No automatic patch recipe published. Consult upstream vendor guidelines.'}
+              {finding.remediation || 'Upgrade dependency to the latest secure version or apply least privilege principles.'}
             </p>
+
+            {/* Practical Solution Box */}
+            <div className="bg-slate-950/80 border border-slate-800 rounded-lg p-3">
+              <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block mb-1.5">
+                💡 Recommended Code / Configuration Fix:
+              </span>
+              {finding.finding_id?.includes('250') || finding.description?.includes('privilege') || finding.file?.includes('Dockerfile') ? (
+                <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
+{`# Add non-root user in Dockerfile:
+RUN useradd -m -u 1000 appuser
+WORKDIR /app
+COPY . .
+USER appuser  # Drop root privileges before execution`}
+                </pre>
+              ) : finding.fixed_version ? (
+                <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
+{`# Update ${finding.package || 'package'} in requirements.txt or Dockerfile:
+${finding.package}==${finding.fixed_version}`}
+                </pre>
+              ) : finding.finding_id?.includes('eval') || finding.description?.includes('eval') ? (
+                <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
+{`# Replace dangerous eval() with safe literal parsing:
+import ast
+safe_data = ast.literal_eval(user_input)`}
+                </pre>
+              ) : finding.finding_id?.includes('shell') || finding.description?.includes('subprocess') ? (
+                <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
+{`# Avoid shell=True to prevent command injection:
+import subprocess
+subprocess.run(["allowed_command", arg], shell=False, check=True)`}
+                </pre>
+              ) : (
+                <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
+{`# Recommended fix:
+1. Isolate the affected component
+2. Upgrade dependency or sanitize user-controlled parameters
+3. Enforce the Principle of Least Privilege`}
+                </pre>
+              )}
+            </div>
           </div>
 
           {/* References */}
