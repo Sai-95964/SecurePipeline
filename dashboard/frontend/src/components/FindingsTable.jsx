@@ -10,6 +10,7 @@ export default function FindingsTable({
   filters,
   onFilterChange,
   onSelectFinding,
+  showFilters = true,
 }) {
   const severityBadges = {
     CRITICAL: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
@@ -24,7 +25,7 @@ export default function FindingsTable({
   return (
     <div className="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden">
       {/* Search and Filters Header */}
-      <div className="p-4 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-900/50">
+      {showFilters && <div className="p-4 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-900/50">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
@@ -83,7 +84,7 @@ export default function FindingsTable({
             </select>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Table */}
       <div className="overflow-x-auto">

@@ -94,7 +94,7 @@ export default function ScoreCard({ summary }) {
           <div className="mt-2 text-3xl font-extrabold font-mono text-white">
             {summary?.total_findings ?? 0}
           </div>
-          <span className="text-[11px] text-slate-500 mt-1">Across all scans</span>
+          <span className="text-[11px] text-slate-500 mt-1">In the latest scan</span>
         </div>
 
         {/* Critical Card */}

@@ -1,8 +1,8 @@
 {
   "scan_metadata": {
-    "target_directory": "C:\\Users\\venna\\.gemini\\antigravity\\scratch\\securepipeline\\sample_app",
-    "start_time": "2026-11-03T18:56:11.140637+00:00",
-    "end_time": "2026-11-03T18:56:11.296955+00:00",
+    "target_directory": "C:\\Users\\venna\\.gemini\\antigravity\\scratch\\SecurePipeline\\sample_app",
+    "start_time": "2026-11-03T19:17:37.426909+00:00",
+    "end_time": "2026-11-03T19:17:37.510984+00:00",
     "docker_image": "sample-test-image:latest"
   },
   "scanner_statuses": {

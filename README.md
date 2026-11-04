@@ -14,6 +14,9 @@
 * **Audit-Ready Reporting:** Produces both structured machine-readable `security_report.json` and visual `security_report.html` reports with dynamic status badges and transparent security score auditing.
 * **FastAPI Backend + SQLite:** Relational storage for scan runs, vulnerabilities, and scanner health tracking with atomic database transactions.
 * **Modern React Operations Dashboard:** Dark-navy enterprise UI displaying live security scores, severity breakdown charts, scanner execution matrices, and vulnerability remediation guidance.
+* **Risk-Based Prioritization:** Every finding receives a contextual risk score (1–100) and a P0–P3 priority using severity, reachability, exploit impact, and whether a fix is already published.
+* **Regression Tracking:** Scan history compares consecutive pipeline runs and marks the security score as improved, regressed, or unchanged.
+* **Remediation Assistant:** Finding details and the Code Analyzer show why code is unsafe and a concrete replacement snippet.
 
 ---
 
@@ -154,11 +157,11 @@ SecurePipeline features a comprehensive test suite covering execution contracts,
 # Run Scanner, Aggregator & Security Gate Tests (22 tests)
 python -m unittest discover -s tests -v
 
-# Run FastAPI Backend & SQLite Tests (18 tests)
+# Run FastAPI Backend & SQLite Tests (40 tests)
 cd dashboard/backend
 python -m unittest discover -s tests -v
 ```
-**Total: 40 Automated Tests — 100% Passing.**
+**Total: 62 Automated Tests — 100% Passing.**
 
 ---
 
@@ -182,5 +185,5 @@ Follow this 10-step demonstration sequence to showcase the complete DevSecOps li
 ## ⚖️ Limitations & Future Work
 
 * **Local Scanners on Windows:** While the Python wrappers run cross-platform, local scanning on Windows requires pre-installing the CLI binaries (`semgrep`, `gitleaks`, `syft`, `trivy`) or executing via WSL/Docker. The CI/CD pipeline installs and runs them natively on Ubuntu.
-* **AI Remediation Integrations:** The dashboard architecture is pre-configured with remediation fields ready to connect directly to local LLMs or the Gemini API for natural-language patch suggestions.
+* **Remediation text is rule-based:** Suggested fixes are generated from vulnerability type and scanner metadata. They do not call an external language-model API.
 * **Enterprise Identity:** Future enhancements can integrate OAuth 2.0 / OIDC (GitHub/Okta) for role-based developer access control.

@@ -13,6 +13,7 @@ export default function FindingModal({ finding, onClose }) {
   };
 
   const badgeClass = sevColors[finding.severity] || sevColors.MEDIUM;
+  const hint = `${finding.finding_id || ''} ${finding.title || ''} ${finding.description || ''} ${finding.package || ''}`.toLowerCase();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
@@ -121,7 +122,7 @@ export default function FindingModal({ finding, onClose }) {
               <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block mb-1.5">
                 💡 Recommended Code / Configuration Fix:
               </span>
-              {finding.finding_id?.includes('250') || finding.description?.includes('privilege') || finding.file?.includes('Dockerfile') ? (
+              {hint.includes('250') || hint.includes('privilege') || finding.file?.includes('Dockerfile') ? (
                 <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
 {`# Add non-root user in Dockerfile:
 RUN useradd -m -u 1000 appuser
@@ -134,13 +135,13 @@ USER appuser  # Drop root privileges before execution`}
 {`# Update ${finding.package || 'package'} in requirements.txt or Dockerfile:
 ${finding.package}==${finding.fixed_version}`}
                 </pre>
-              ) : finding.finding_id?.includes('eval') || finding.description?.includes('eval') ? (
+              ) : hint.includes('eval') || hint.includes('exec(') ? (
                 <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
 {`# Replace dangerous eval() with safe literal parsing:
 import ast
 safe_data = ast.literal_eval(user_input)`}
                 </pre>
-              ) : finding.finding_id?.includes('shell') || finding.description?.includes('subprocess') ? (
+              ) : /shell|subprocess|command injection|os\.system/.test(hint) ? (
                 <pre className="text-xs font-mono text-emerald-300 bg-emerald-950/30 p-2.5 rounded border border-emerald-900/50 overflow-x-auto">
 {`# Avoid shell=True to prevent command injection:
 import subprocess

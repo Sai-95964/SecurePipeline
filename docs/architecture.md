@@ -35,12 +35,8 @@ SecurePipeline is a DevSecOps automation framework that injects security testing
 - **No hard‑coded data** – the dashboard UI fetches live data from the FastAPI backend.
 - **Optional AI explanations** are decoupled from the gate logic to avoid slowing down the core pipeline.
 
-## Next Steps (Phase 2 onward)
-- Implement the scanner wrappers in `scanners/`.
-- Build the aggregation, gate, and reporting scripts.
-- Fill in the GitHub Actions workflow with the exact steps.
-- Develop the FastAPI service and the React UI.
-- Write unit tests and create sample vulnerable projects for demonstration.
+## Implementation Status
+Phases 1–7 are implemented: scanner wrappers, aggregation, the fail-closed security gate, GitHub Actions, the FastAPI service, SQLite, and the React dashboard. Later additions score each finding by contextual risk, compare consecutive scans for regressions, and attach a concrete remediation snippet in the dashboard.
 
 ---
 *This document is version‑controlled and will be expanded as the implementation progresses.*

@@ -9,15 +9,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .database import init_db
+from .crud import backfill_risk_scores
+from .database import SessionLocal, init_db
 from .routers import scans, findings, dashboard, analyzer
 from .schemas import HealthResponse
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize SQLite tables on startup
+    # Initialize SQLite tables on startup and score any legacy findings.
     init_db()
+    db = SessionLocal()
+    try:
+        backfill_risk_scores(db)
+    finally:
+        db.close()
     yield
 
 

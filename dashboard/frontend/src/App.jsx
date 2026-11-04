@@ -32,6 +32,7 @@ export default function App() {
   
   // Findings state
   const [findings, setFindings] = useState([]);
+  const [recentFindings, setRecentFindings] = useState([]);
   const [findingsTotal, setFindingsTotal] = useState(0);
   const [page, setPage] = useState(1);
   const pageSize = 20;
@@ -70,6 +71,14 @@ export default function App() {
       setDistribution(distData);
       setScanners(scData.scanners || {});
       setScans(scansData.scans || []);
+
+      const latestId = sumData?.latest_scan?.id;
+      if (latestId) {
+        const recent = await fetchFindings({ skip: 0, limit: 5, scanId: latestId });
+        setRecentFindings(recent.findings || []);
+      } else {
+        setRecentFindings([]);
+      }
     } catch (err) {
       console.error('Failed to load dashboard metrics:', err);
       setBackendConnected(false);
@@ -203,8 +212,8 @@ export default function App() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Recent Vulnerabilities</h3>
-                    <p className="text-xs text-slate-400">Quick view of high-priority findings</p>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Latest Scan Findings</h3>
+                    <p className="text-xs text-slate-400">Prioritized findings from the most recent pipeline run</p>
                   </div>
                   <button
                     onClick={() => setActiveTab('vulnerabilities')}
@@ -214,14 +223,15 @@ export default function App() {
                   </button>
                 </div>
                 <FindingsTable
-                  findings={findings.slice(0, 5)}
-                  total={findingsTotal}
+                  findings={recentFindings}
+                  total={recentFindings.length}
                   page={1}
                   pageSize={5}
                   onPageChange={() => setActiveTab('vulnerabilities')}
                   filters={filters}
                   onFilterChange={handleFilterChange}
                   onSelectFinding={setSelectedFinding}
+                  showFilters={false}
                 />
               </div>
             </div>
